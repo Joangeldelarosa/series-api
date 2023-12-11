@@ -3,16 +3,16 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import axios from 'axios';
 
-import { CategoriesTypes } from 'src/serie/entities/categories-types.enum';
-import { Category } from 'src/serie/entities/category.entity';
-import { Episode } from 'src/serie/entities/episode.entity';
-import { Character } from 'src/serie/entities/character.entity';
-import { Status } from 'src/serie/entities/status.entity';
-import { CategoryRelation } from 'src/serie/entities/category-relation.entity';
-import { StatusRelation } from 'src/serie/entities/status-relation.entity';
-import { Performance } from 'src/serie/entities/performance.entity';
-import { Statuses } from 'src/serie/entities/statuses.enum';
-import { StatusesTypes } from 'src/serie/entities/statuses-types.enum';
+import { CategoriesTypes } from 'src/series/entities/categories-types.enum';
+import { Category } from 'src/series/entities/category.entity';
+import { Episode } from 'src/series/entities/episode.entity';
+import { Character } from 'src/series/entities/character.entity';
+import { Status } from 'src/series/entities/status.entity';
+import { CategoryRelation } from 'src/series/entities/category-relation.entity';
+import { StatusRelation } from 'src/series/entities/status-relation.entity';
+import { Performance } from 'src/series/entities/performance.entity';
+import { Statuses } from 'src/series/entities/statuses.enum';
+import { StatusesTypes } from 'src/series/entities/statuses-types.enum';
 
 const getSeason = (episode: string) => {
   const season = episode.substring(2, 3);
