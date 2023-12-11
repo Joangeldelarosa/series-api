@@ -26,6 +26,7 @@ export class CreateCharacterDto {
 
   @ApiProperty({ description: 'Specie of the character' })
   @IsString()
+  @IsNotEmpty()
   readonly specie: string;
 
   @ApiProperty({ required: false, description: 'Type of the character' })

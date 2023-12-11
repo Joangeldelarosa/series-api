@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { CreateCharacterDto } from '../dtos/create-character.dto';
 import { UpdateCharacterDto } from '../dtos/update-character.dto';
@@ -15,8 +15,11 @@ export class CharactersService {
   ) {}
 
   async create(createCharacterDto: CreateCharacterDto): Promise<Character> {
-    const createdCharacter = new this.characterModel(createCharacterDto);
-    return createdCharacter.save();
+    const createdCharacter = await this.characterModel.create(
+      createCharacterDto,
+    );
+    // save and return populated fields
+    return this.populateCharacter(createdCharacter);
   }
 
   async update(
@@ -30,15 +33,18 @@ export class CharactersService {
 
     // find character with id and active status
     const character = await this.characterModel
-      .findOne({ _id: id, currentStatus: activeStatus._id })
+      .findOneAndUpdate(
+        { _id: id, currentStatus: activeStatus._id },
+        updateCharacterDto,
+        { new: true }, // Return the modified document
+      )
+      .populate('specie')
+      .populate('currentStatus')
       .exec();
 
     if (!character) {
       throw new NotFoundException(`Character with ID ${id} not found`);
     }
-
-    character.set(updateCharacterDto);
-    await character.save();
 
     return character;
   }
@@ -52,13 +58,26 @@ export class CharactersService {
       throw new NotFoundException(`Status ${Statuses.Suspended} not found`);
     }
 
-    const character = await this.characterModel.findOne({ _id: id }).exec();
+    const character = await this.characterModel
+      .findOneAndUpdate(
+        { _id: id },
+        { currentStatus: suspendedStatus._id },
+        { new: true }, // Return the modified document
+      )
+      .exec();
 
-    if (character) {
-      character.currentStatus = suspendedStatus._id;
-      await character.save();
-    } else {
+    if (!character) {
       throw new NotFoundException(`Character with ID ${id} not found`);
     }
+
+    return;
+  }
+
+  private async populateCharacter(character: Character): Promise<Character> {
+    return this.characterModel
+      .findOne({ _id: character._id })
+      .populate('specie')
+      .populate('currentStatus')
+      .exec();
   }
 }

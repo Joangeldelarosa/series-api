@@ -1,6 +1,5 @@
 import {
   Controller,
-  Get,
   Post,
   Patch,
   Delete,
@@ -14,7 +13,9 @@ import { CreateCharacterDto } from '../dtos/create-character.dto';
 import { UpdateCharacterDto } from '../dtos/update-character.dto';
 import { Character } from 'src/series/entities/character.entity';
 import { ApiTags, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
-import { ObjectIdValidationPipe } from 'src/common/pipes/object-validation.pipe';
+import { ObjectIdValidationPipe } from 'src/common/pipes/object-id-validation.pipe';
+import { ValidCategoryPipe } from 'src/common/pipes/valid-category.pipe';
+import { UniqueNamePipe } from 'src/common/pipes/unique-name.pipe';
 
 @ApiTags('characters') // Etiqueta para agrupar en Swagger
 @Controller('characters')
@@ -27,6 +28,7 @@ export class CharactersController {
     description: 'Create a new character',
   })
   @ApiBody({ type: CreateCharacterDto })
+  @UsePipes(ValidCategoryPipe, UniqueNamePipe)
   @HttpCode(201)
   async create(
     @Body() createCharacterDto: CreateCharacterDto,
@@ -42,7 +44,7 @@ export class CharactersController {
   })
   @ApiBody({ type: UpdateCharacterDto })
   @HttpCode(200)
-  @UsePipes(new ObjectIdValidationPipe())
+  @UsePipes(ObjectIdValidationPipe, ValidCategoryPipe, UniqueNamePipe)
   async update(
     @Param('id') id: string,
     @Body() updateCharacterDto: UpdateCharacterDto,
@@ -54,7 +56,7 @@ export class CharactersController {
   @ApiParam({ name: 'id', description: 'Character ID' })
   @ApiResponse({ status: 204, description: 'Remove a character' })
   @HttpCode(204)
-  @UsePipes(new ObjectIdValidationPipe())
+  @UsePipes(ObjectIdValidationPipe)
   async remove(@Param('id') id: string): Promise<void> {
     await this.charactersService.remove(id);
   }

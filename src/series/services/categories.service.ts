@@ -31,11 +31,12 @@ export class CategoriesService {
       .populate('subcategories')
       .exec();
 
-    const isSpecieAllowed = specieCategoryRelation.subcategories.some(
-      (subCategory) => subCategory.name === value,
+    // check if value is in subcategories.name
+    const allowed = specieCategoryRelation.subcategories.some(
+      (subcat) => subcat.name === value,
     );
 
-    if (!isSpecieAllowed) {
+    if (!allowed) {
       return false;
     }
 
