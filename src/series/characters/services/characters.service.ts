@@ -7,7 +7,9 @@ import { Character } from 'src/series/entities/character.entity';
 import { Status } from 'src/series/entities/status.entity';
 import { Statuses } from 'src/series/entities/statuses.enum';
 import { Category } from 'src/series/entities/category.entity';
+import { CategoryRelation } from 'src/series/entities/category-relation.entity';
 import { ResponseEntity } from 'src/common/entities/response.entity';
+import { CategoriesTypes } from 'src/series/entities/categories-types.enum';
 
 @Injectable()
 export class CharactersService {
@@ -15,6 +17,8 @@ export class CharactersService {
     @InjectModel('Character') private readonly characterModel: Model<Character>,
     @InjectModel('Status') private readonly statusModel: Model<Status>,
     @InjectModel('Category') private readonly categoryModel: Model<Category>,
+    @InjectModel('CategoryRelation')
+    private readonly categoryRelationModel: Model<CategoryRelation>,
   ) {}
 
   async create(createCharacterDto: CreateCharacterDto): Promise<Character> {
@@ -169,5 +173,17 @@ export class CharactersService {
   async getCharactersTypes(): Promise<string[]> {
     const results = await this.characterModel.distinct('type').exec();
     return results;
+  }
+
+  // get array of string of characters species from categoryrelations where category is CategoryType.Species
+  async getCharactersSpecies(): Promise<string[]> {
+    const results = await this.categoryRelationModel
+      .findOne({
+        category: CategoriesTypes.Species,
+      })
+      .populate('subcategories')
+      .exec();
+
+    return results.subcategories.map((sub) => sub.name);
   }
 }

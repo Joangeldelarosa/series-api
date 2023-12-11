@@ -83,7 +83,7 @@ export class MigrationService {
     const charactersData: Character[] = characters.data.results.map(
       ({ episode, id, url, type, species, ...rest }) => ({
         ...rest,
-        type: type.toUpperCase(),
+        type: type && type !== '' ? type.toUpperCase() : undefined,
         specie: species.toUpperCase(),
       }),
     );

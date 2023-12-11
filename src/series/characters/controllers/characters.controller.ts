@@ -132,4 +132,18 @@ export class CharactersController {
   async getTypes(): Promise<string[]> {
     return this.charactersService.getCharactersTypes();
   }
+
+  @Get('species')
+  @ApiOperation({
+    summary: 'Get all character species',
+    description: 'Retrieve a list of all character species.',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Successfully retrieved character species.',
+  })
+  @HttpCode(200)
+  async getSpecies(): Promise<string[]> {
+    return this.charactersService.getCharactersSpecies();
+  }
 }
