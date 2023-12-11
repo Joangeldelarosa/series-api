@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 // Schema: Character (_id, id, currentStatus [relation], name, status, specie, type, gender, origin, location, image, url, createdAt, updatedAt)
-const CharacterSchema = new mongoose.Schema({
+export const CharacterSchema = new mongoose.Schema({
   id: {
     type: Number,
   },
@@ -17,37 +17,26 @@ const CharacterSchema = new mongoose.Schema({
     type: String,
   },
   specie: {
-    type: String,
-    required: true,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
   },
   type: {
     type: String,
-    required: true,
   },
   gender: {
     type: String,
   },
   origin: {
-    name: {
-      type: String,
-    },
-    url: {
-      type: Date,
-    },
+    type: Object,
   },
   location: {
-    name: {
-      type: String,
-    },
-    url: {
-      type: Date,
-    },
+    type: Object,
   },
   image: {
     type: String,
   },
   url: {
-    type: Date,
+    type: String,
   },
   created: {
     type: Date,

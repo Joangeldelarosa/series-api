@@ -1,10 +1,11 @@
 import * as mongoose from 'mongoose';
 
 // Schema: Category (_id, name)
-const CategorySchema = new mongoose.Schema({
+export const CategorySchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
+    unique: true,
   },
 });
 

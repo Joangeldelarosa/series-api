@@ -1,7 +1,7 @@
 import * as mongoose from 'mongoose';
 
 // Schema: Performance (_id, interval [{ start, end }], episode [relation], character [relation])
-const PerformanceSchema = new mongoose.Schema({
+export const PerformanceSchema = new mongoose.Schema({
   interval: [
     {
       start: {

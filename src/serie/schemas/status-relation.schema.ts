@@ -1,10 +1,11 @@
 import * as mongoose from 'mongoose';
 
 // Schema: StatusRelation (_id, type, statuses [relation])
-const StatusRelationSchema = new mongoose.Schema({
+export const StatusRelationSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
+    unique: true,
   },
   statuses: [
     {

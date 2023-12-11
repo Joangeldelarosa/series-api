@@ -1,14 +1,17 @@
 import * as mongoose from 'mongoose';
 
 // Schema: CategoryRelation (_id, category [relation], subcategories)
-const CategoryRelationSchema = new mongoose.Schema({
+export const CategoryRelationSchema = new mongoose.Schema({
   category: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Category',
+    type: String,
+    required: true,
+    unique: true,
   },
   subcategories: [
     {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Category',
+      unique: true,
     },
   ],
 });

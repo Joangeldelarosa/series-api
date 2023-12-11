@@ -1,12 +1,13 @@
 import * as mongoose from 'mongoose';
 
 // Schema: Episode (_id, name, currentStatus [relation], air_date, season, duration)
-const EpisodeSchema = new mongoose.Schema({
+export const EpisodeSchema = new mongoose.Schema({
   id: {
     type: Number,
   },
   name: {
     type: String,
+    required: true,
   },
   currentStatus: {
     type: mongoose.Schema.Types.ObjectId,
@@ -16,10 +17,12 @@ const EpisodeSchema = new mongoose.Schema({
     type: String,
   },
   season: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
   },
   duration: {
     type: Number,
+    max: 3600,
   },
 });
 
