@@ -6,10 +6,13 @@ import {
   Param,
   Body,
   UsePipes,
+  UseGuards,
   HttpCode,
+  ValidationPipe,
   Query,
   Get,
 } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { CharactersService } from '../services/characters.service';
 import { CreateCharacterDto } from '../dtos/create-character.dto';
 import { UpdateCharacterDto } from '../dtos/update-character.dto';
@@ -21,16 +24,18 @@ import {
   ApiBody,
   ApiQuery,
   ApiOperation,
+  ApiBearerAuth,
 } from '@nestjs/swagger';
 import { ObjectIdValidationPipe } from 'src/common/pipes/object-id-validation.pipe';
 import { ValidCategoryPipe } from 'src/common/pipes/valid-category.pipe';
 import { UniqueCharacterNamePipe } from 'src/common/pipes/unique-character-name.pipe';
 
-@ApiTags('characters')
+@ApiTags('Characters')
 @Controller('characters')
 export class CharactersController {
   constructor(private readonly charactersService: CharactersService) {}
 
+  // ANCHOR Get/Find all characters
   @Get()
   @ApiOperation({
     summary: 'Get characters with pagination and filters',
@@ -68,6 +73,7 @@ export class CharactersController {
     return this.charactersService.findAll(page, specie, type);
   }
 
+  // ANCHOR Create a character
   @Post()
   @ApiOperation({
     summary: 'Create a new character',
@@ -78,7 +84,9 @@ export class CharactersController {
     description: 'Create a new character',
   })
   @ApiBody({ type: CreateCharacterDto })
-  @UsePipes(ValidCategoryPipe, UniqueCharacterNamePipe)
+  @ApiBearerAuth()
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(ValidationPipe, ValidCategoryPipe, UniqueCharacterNamePipe)
   @HttpCode(201)
   async create(
     @Body() createCharacterDto: CreateCharacterDto,
@@ -86,6 +94,7 @@ export class CharactersController {
     return this.charactersService.create(createCharacterDto);
   }
 
+  // ANCHOR Update a character
   @Patch(':id')
   @ApiOperation({
     summary: 'Update a character',
@@ -97,8 +106,15 @@ export class CharactersController {
     description: 'Update a character',
   })
   @ApiBody({ type: UpdateCharacterDto })
+  @ApiBearerAuth()
   @HttpCode(200)
-  @UsePipes(ObjectIdValidationPipe, ValidCategoryPipe, UniqueCharacterNamePipe)
+  @UseGuards(AuthGuard('jwt'))
+  @UsePipes(
+    ValidationPipe,
+    ObjectIdValidationPipe,
+    ValidCategoryPipe,
+    UniqueCharacterNamePipe,
+  )
   async update(
     @Param('id') id: string,
     @Body() updateCharacterDto: UpdateCharacterDto,
@@ -106,6 +122,7 @@ export class CharactersController {
     return this.charactersService.update(id, updateCharacterDto);
   }
 
+  // ANCHOR Remove a character
   @Delete(':id')
   @ApiOperation({
     summary: 'Remove a character',
@@ -113,12 +130,15 @@ export class CharactersController {
   })
   @ApiParam({ name: 'id', description: 'Character ID' })
   @ApiResponse({ status: 204, description: 'Remove a character' })
+  @ApiBearerAuth()
   @HttpCode(204)
+  @UseGuards(AuthGuard('jwt'))
   @UsePipes(ObjectIdValidationPipe)
   async remove(@Param('id') id: string): Promise<void> {
     await this.charactersService.remove(id);
   }
 
+  // ANCHOR Get character types
   @Get('types')
   @ApiOperation({
     summary: 'Get all character types',
@@ -133,6 +153,7 @@ export class CharactersController {
     return this.charactersService.getCharactersTypes();
   }
 
+  // ANCHOR Get character species
   @Get('species')
   @ApiOperation({
     summary: 'Get all character species',

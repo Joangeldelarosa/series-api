@@ -21,6 +21,7 @@ export class CharactersService {
     private readonly categoryRelationModel: Model<CategoryRelation>,
   ) {}
 
+  // ANCHOR Create a character
   async create(createCharacterDto: CreateCharacterDto): Promise<Character> {
     // find active status
     const activeStatus = await this.statusModel
@@ -35,6 +36,7 @@ export class CharactersService {
     return this.populateCharacter(createdCharacter);
   }
 
+  // ANCHOR Update a character
   async update(
     id: string,
     updateCharacterDto: UpdateCharacterDto,
@@ -62,6 +64,7 @@ export class CharactersService {
     return character;
   }
 
+  // ANCHOR Remove a character
   async remove(id: string): Promise<void> {
     const suspendedStatus = await this.statusModel
       .findOne({ name: Statuses.Suspended })
@@ -86,6 +89,7 @@ export class CharactersService {
     return;
   }
 
+  // ANCHOR Populate character data
   private async populateCharacter(character: Character): Promise<Character> {
     return this.characterModel
       .findOne({ _id: character._id })
@@ -94,6 +98,7 @@ export class CharactersService {
       .exec();
   }
 
+  // ANCHOR Get/Find characters
   async findAll(
     page: number | string,
     specie: string,
@@ -169,13 +174,13 @@ export class CharactersService {
     return res;
   }
 
-  // get array of string of characters types (not repeated)
+  // ANCHOR Get characters types
   async getCharactersTypes(): Promise<string[]> {
     const results = await this.characterModel.distinct('type').exec();
     return results;
   }
 
-  // get array of string of characters species from categoryrelations where category is CategoryType.Species
+  // ANCHOR: Get characters species
   async getCharactersSpecies(): Promise<string[]> {
     const results = await this.categoryRelationModel
       .findOne({

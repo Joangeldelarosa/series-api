@@ -20,6 +20,7 @@ async function bootstrap() {
       'Complete API definition for Series API, using Rick and Morty API as data source',
     )
     .setVersion('0.2')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
