@@ -4,7 +4,6 @@ import { Category } from './category.entity';
 
 export interface Character {
   _id?: mongoose.Types.ObjectId;
-  id?: number;
   currentStatus?: mongoose.Types.ObjectId | Status;
   name: string;
   status?: string;
@@ -16,6 +15,5 @@ export interface Character {
   origin?: object;
   location?: object;
   image?: string;
-  url?: string;
   created?: Date;
 }

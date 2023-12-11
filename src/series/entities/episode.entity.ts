@@ -4,7 +4,6 @@ import { Category } from './category.entity';
 
 export interface Episode {
   _id?: mongoose.Types.ObjectId;
-  id?: number;
   name: string;
   currentStatus?: mongoose.Types.ObjectId | Status;
   air_date?: string;

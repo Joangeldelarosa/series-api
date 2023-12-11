@@ -2,9 +2,6 @@ import * as mongoose from 'mongoose';
 
 // Schema: Character (_id, id, currentStatus [relation], name, status, specie, type, gender, origin, location, image, url, createdAt, updatedAt)
 export const CharacterSchema = new mongoose.Schema({
-  id: {
-    type: Number,
-  },
   currentStatus: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Status',
@@ -33,9 +30,6 @@ export const CharacterSchema = new mongoose.Schema({
     type: Object,
   },
   image: {
-    type: String,
-  },
-  url: {
     type: String,
   },
   created: {

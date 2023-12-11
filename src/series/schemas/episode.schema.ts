@@ -2,9 +2,6 @@ import * as mongoose from 'mongoose';
 
 // Schema: Episode (_id, name, currentStatus [relation], air_date, season, duration)
 export const EpisodeSchema = new mongoose.Schema({
-  id: {
-    type: Number,
-  },
   name: {
     type: String,
     required: true,

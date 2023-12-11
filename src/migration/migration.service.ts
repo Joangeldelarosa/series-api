@@ -73,7 +73,7 @@ export class MigrationService {
 
     // Transform episodes data
     const episodesData: Episode[] = episodes.data.results.map(
-      ({ characters, episode, ...rest }) => ({
+      ({ characters, id, episode, ...rest }) => ({
         ...rest,
         season: getSeason(episode),
       }),
@@ -81,7 +81,7 @@ export class MigrationService {
 
     // Transform characters data
     const charactersData: Character[] = characters.data.results.map(
-      ({ episode, species, ...rest }) => ({
+      ({ episode, id, url, species, ...rest }) => ({
         ...rest,
         specie: species.toUpperCase(),
       }),
