@@ -10,6 +10,7 @@ export class UniqueCharacterNamePipe implements PipeTransform {
   ) {}
 
   async transform(value: any): Promise<any> {
+    value.type = value.type.toUpperCase();
     const { name, specie, type } = value;
 
     const character = await this.characterModel.findOne({ name, specie, type });

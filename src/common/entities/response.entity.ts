@@ -5,8 +5,8 @@ export class ResponseEntity {
   info?: {
     count: number;
     pages: number;
-    next: string;
-    prev: boolean;
+    next: string | null;
+    prev: string | null;
   };
   results?: any[];
 }

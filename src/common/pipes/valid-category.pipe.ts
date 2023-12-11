@@ -29,6 +29,7 @@ export class ValidCategoryPipe implements PipeTransform {
     type: CategoriesTypes,
     request: any,
   ): Promise<boolean> {
+    value = value.toUpperCase();
     const category = await this.categoriesService.findCategoryByName(value);
 
     if (!category) {
