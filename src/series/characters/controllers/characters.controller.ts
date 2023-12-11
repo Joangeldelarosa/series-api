@@ -15,7 +15,7 @@ import { Character } from 'src/series/entities/character.entity';
 import { ApiTags, ApiResponse, ApiParam, ApiBody } from '@nestjs/swagger';
 import { ObjectIdValidationPipe } from 'src/common/pipes/object-id-validation.pipe';
 import { ValidCategoryPipe } from 'src/common/pipes/valid-category.pipe';
-import { UniqueNamePipe } from 'src/common/pipes/unique-name.pipe';
+import { UniqueCharacterNamePipe } from 'src/common/pipes/unique-character-name.pipe';
 
 @ApiTags('characters') // Etiqueta para agrupar en Swagger
 @Controller('characters')
@@ -28,7 +28,7 @@ export class CharactersController {
     description: 'Create a new character',
   })
   @ApiBody({ type: CreateCharacterDto })
-  @UsePipes(ValidCategoryPipe, UniqueNamePipe)
+  @UsePipes(ValidCategoryPipe, UniqueCharacterNamePipe)
   @HttpCode(201)
   async create(
     @Body() createCharacterDto: CreateCharacterDto,
@@ -44,7 +44,7 @@ export class CharactersController {
   })
   @ApiBody({ type: UpdateCharacterDto })
   @HttpCode(200)
-  @UsePipes(ObjectIdValidationPipe, ValidCategoryPipe, UniqueNamePipe)
+  @UsePipes(ObjectIdValidationPipe, ValidCategoryPipe, UniqueCharacterNamePipe)
   async update(
     @Param('id') id: string,
     @Body() updateCharacterDto: UpdateCharacterDto,
