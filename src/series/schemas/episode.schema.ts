@@ -20,6 +20,7 @@ export const EpisodeSchema = new mongoose.Schema({
   duration: {
     type: Number,
     max: 3600,
+    default: 0,
   },
 });
 
