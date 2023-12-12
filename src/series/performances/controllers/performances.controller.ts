@@ -99,41 +99,41 @@ export class PerformancesController {
     await this.performancesService.remove(id);
   }
 
-  // ANCHOR Validate Episode
-  @Get(':episodeId/validate')
-  @ApiOperation({
-    summary: 'Validate performances in an episode',
-    description: 'Validate if the performances in an episode are correct.',
-  })
-  @ApiParam({ name: 'episodeId', description: 'Episode ID' })
-  @ApiResponse({
-    status: 200,
-    description: 'Validation successful',
-  })
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
-  @HttpCode(200)
-  async validateEpisode(
-    @Param('episodeId') episodeId: string,
-  ): Promise<ResponseEntity> {
-    const isValid = await this.performancesService.isValidEpisodePerformances(
-      episodeId,
-    );
+  // // ANCHOR Validate Episode
+  // @Get(':episodeId/validate')
+  // @ApiOperation({
+  //   summary: 'Validate performances in an episode',
+  //   description: 'Validate if the performances in an episode are correct.',
+  // })
+  // @ApiParam({ name: 'episodeId', description: 'Episode ID' })
+  // @ApiResponse({
+  //   status: 200,
+  //   description: 'Validation successful',
+  // })
+  // @ApiBearerAuth()
+  // @UseGuards(AuthGuard('jwt'))
+  // @HttpCode(200)
+  // async validateEpisode(
+  //   @Param('episodeId') episodeId: string,
+  // ): Promise<ResponseEntity> {
+  //   const isValid = await this.performancesService.isValidEpisodePerformances(
+  //     episodeId,
+  //   );
 
-    if (!isValid) {
-      const res: ResponseEntity = {
-        error: 'The performances in this episode are not valid.',
-      };
+  //   if (!isValid) {
+  //     const res: ResponseEntity = {
+  //       error: 'The performances in this episode are not valid.',
+  //     };
 
-      return res;
-    }
+  //     return res;
+  //   }
 
-    const res: ResponseEntity = {
-      message: 'The performances in this episode are valid.',
-    };
+  //   const res: ResponseEntity = {
+  //     message: 'The performances in this episode are valid.',
+  //   };
 
-    return res;
-  }
+  //   return res;
+  // }
 
   // ANCHOR Remove Character from Episode
   @Delete(':episodeId/characters/:characterId')
