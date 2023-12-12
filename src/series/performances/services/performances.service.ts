@@ -13,6 +13,7 @@ import {
 import { Episode } from 'src/series/entities/episode.entity';
 import { Character } from 'src/series/entities/character.entity';
 import { Status } from 'src/series/entities/status.entity';
+import { Category } from 'src/series/entities/category.entity';
 
 @Injectable()
 export class PerformancesService {
@@ -21,6 +22,7 @@ export class PerformancesService {
     @InjectModel('Episode') private episodeModel: Model<Episode>,
     @InjectModel('Character') private characterModel: Model<Character>,
     @InjectModel('Status') private statusModel: Model<Status>,
+    @InjectModel('Category') private categoryModel: Model<Category>,
   ) {}
 
   // ANCHOR Create Performance
@@ -172,6 +174,7 @@ export class PerformancesService {
 
     // Lookup stage to populate 'character.currentStatus'
     if (currentStatus) {
+      currentStatus = currentStatus.toUpperCase();
       const status = await this.statusModel.findOne({ name: currentStatus });
 
       if (!status) {
@@ -257,6 +260,7 @@ export class PerformancesService {
   ): Promise<ResponseEntity> {
     page = page ? (typeof page === 'string' ? parseInt(page) : page) : 1;
     page = page < 1 ? 1 : page;
+    episodeStatus = episodeStatus.toUpperCase();
 
     const limit = 5;
 
@@ -331,6 +335,7 @@ export class PerformancesService {
 
     // Lookup stage to populate 'character.currentStatus'
     if (currentStatus) {
+      currentStatus = currentStatus.toUpperCase();
       const status = await this.statusModel.findOne({ name: currentStatus });
 
       if (!status) {
@@ -375,6 +380,101 @@ export class PerformancesService {
       $skip: (page - 1) * limit,
     });
 
+    aggregationPipeline.push({
+      $limit: limit,
+    });
+
+    // Execute the aggregation
+    const results = await this.performanceModel.aggregate(aggregationPipeline);
+
+    if (results.length === 0) {
+      throw new NotFoundException(`No results found`);
+    }
+
+    const count = totalCount.length > 0 ? totalCount[0].count : 0;
+    const totalPages = Math.ceil(count / limit);
+
+    const res: ResponseEntity = {
+      info: {
+        count,
+        pages: totalPages,
+        next:
+          page < totalPages
+            ? `${process.env.API_URL}/performances?page=${page + 1}`
+            : null,
+        prev:
+          page > 1
+            ? `${process.env.API_URL}/performances?page=${page - 1}`
+            : null,
+      },
+      results,
+    };
+
+    return res;
+  }
+
+  // ANCHOR Find All Performances by Character and Season
+  async findAllByCharacterAndSeason(
+    page: number | string,
+    characterId: string,
+    season: string,
+  ): Promise<ResponseEntity> {
+    page = page ? (typeof page === 'string' ? parseInt(page) : page) : 1;
+    page = page < 1 ? 1 : page;
+
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const aggregationPipeline: any[] = [];
+
+    // Match stage to filter by characterId
+    aggregationPipeline.push({
+      $match: {
+        character: new mongoose.Types.ObjectId(characterId),
+      },
+    });
+
+    // Lookup stage to populate 'episode'
+    aggregationPipeline.push({
+      $lookup: {
+        from: 'episodes',
+        localField: 'episode',
+        foreignField: '_id',
+        as: 'episode',
+      },
+    });
+
+    // Unwind 'episode' array created by $lookup
+    aggregationPipeline.push({
+      $unwind: '$episode',
+    });
+
+    // Match stage to filter by season
+    const seasonResult = await this.categoryModel.findOne({ name: season });
+
+    if (!seasonResult) {
+      throw new NotFoundException(`The season ${season} does not exist`);
+    }
+
+    aggregationPipeline.push({
+      $match: {
+        'episode.season': seasonResult._id,
+      },
+    });
+
+    const totalCount = await this.performanceModel
+      .aggregate([
+        ...aggregationPipeline,
+        {
+          $count: 'count',
+        },
+      ])
+      .exec();
+
+    // Skip and Limit stages for pagination
+    aggregationPipeline.push({
+      $skip: skip,
+    });
     aggregationPipeline.push({
       $limit: limit,
     });

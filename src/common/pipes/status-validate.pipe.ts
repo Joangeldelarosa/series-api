@@ -11,7 +11,7 @@ export class StatusValidatePipe implements PipeTransform<string, string> {
   transform(value: string, metadata: ArgumentMetadata): string {
     if (metadata.data === 'currentStatus' && value) {
       value = value.toUpperCase();
-      if (!this.isStatusValid(value)) {
+      if (!this.isStatusValid(value.toUpperCase())) {
         throw new BadRequestException(`${value} is an invalid status`);
       }
     }

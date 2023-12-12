@@ -240,4 +240,34 @@ export class PerformancesController {
 
     return performances;
   }
+
+  // ANCHOR Find All Performances by Character and Season
+  @Get('character/:characterId/season/:season')
+  @ApiOperation({
+    summary: 'Find all performances by character and season',
+    description:
+      'Find all performances by character and season with pagination and optional filters.',
+  })
+  @ApiParam({ name: 'characterId', description: 'Character ID' })
+  @ApiParam({ name: 'season', description: 'Season name' })
+  @ApiQuery({ name: 'page', description: 'Page number', required: false })
+  @ApiResponse({
+    status: 200,
+    description: 'Find all performances by character and season',
+  })
+  @UsePipes(ValidationPipe)
+  async findAllByCharacterAndSeason(
+    @Param('characterId') characterId: string,
+    @Param('season') season: string,
+    @Query('page') page?: number | string,
+  ): Promise<ResponseEntity> {
+    const performances =
+      await this.performancesService.findAllByCharacterAndSeason(
+        page,
+        characterId,
+        season,
+      );
+
+    return performances;
+  }
 }
