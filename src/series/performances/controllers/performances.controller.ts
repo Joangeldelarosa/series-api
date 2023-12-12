@@ -200,4 +200,44 @@ export class PerformancesController {
 
     return performances;
   }
+
+  // ANCHOR Find All by Episode Status
+  @Get('status/:episodeStatus')
+  @ApiOperation({
+    summary: 'Find all performances by episode status',
+    description:
+      'Find all performances by episode status with pagination and optional filters.',
+  })
+  @ApiParam({ name: 'episodeStatus', description: 'Episode status' })
+  @ApiQuery({ name: 'page', description: 'Page number', required: false })
+  @ApiQuery({
+    name: 'characterId',
+    description: 'Character ID',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'currentStatus',
+    description: 'Character current state',
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Find all performances by episode status',
+  })
+  @UsePipes(ValidationPipe, StatusValidatePipe)
+  async findAllByEpisodeStatus(
+    @Param('episodeStatus') episodeStatus: string,
+    @Query('page') page?: number | string,
+    @Query('characterId') characterId?: string,
+    @Query('currentStatus') currentStatus?: string,
+  ): Promise<ResponseEntity> {
+    const performances = await this.performancesService.findAllByEpisodeStatus(
+      page,
+      episodeStatus,
+      characterId,
+      currentStatus,
+    );
+
+    return performances;
+  }
 }
