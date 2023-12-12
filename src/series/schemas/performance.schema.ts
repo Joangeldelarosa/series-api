@@ -2,18 +2,17 @@ import * as mongoose from 'mongoose';
 
 // Schema: Performance (_id, interval [{ start, end }], episode [relation], character [relation])
 export const PerformanceSchema = new mongoose.Schema({
-  interval: [
-    {
-      start: {
-        type: Number,
-        required: true,
-      },
-      end: {
-        type: Number,
-        required: true,
-      },
+  interval: {
+    start: {
+      type: String,
+      required: true,
     },
-  ],
+    end: {
+      type: String,
+      required: true,
+    },
+  },
+
   episode: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Episode',
