@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CategorySchema } from './schemas/category.schema';
 import { CategoryRelationSchema } from './schemas/category-relation.schema';
 import { EpisodesModule } from './episodes/episodes.module';
+import { PerformancesModule } from './performances/performances.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { EpisodesModule } from './episodes/episodes.module';
     ]),
     CharactersModule,
     EpisodesModule,
+    PerformancesModule,
   ],
   providers: [CategoriesService],
 })
