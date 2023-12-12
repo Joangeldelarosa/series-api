@@ -1,7 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import * as mongoose from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Performance } from 'src/series/entities/performance.entity';
+import { ResponseEntity } from 'src/common/entities/response.entity';
 import { CreatePerformanceDto } from '../dtos/create-performance.dto';
 import { UpdatePerformanceDto } from '../dtos/update-performance.dto';
 import {
@@ -10,6 +12,7 @@ import {
 } from 'src/common/utils/time-tools';
 import { Episode } from 'src/series/entities/episode.entity';
 import { Character } from 'src/series/entities/character.entity';
+import { Status } from 'src/series/entities/status.entity';
 
 @Injectable()
 export class PerformancesService {
@@ -17,6 +20,7 @@ export class PerformancesService {
     @InjectModel('Performance') private performanceModel: Model<Performance>,
     @InjectModel('Episode') private episodeModel: Model<Episode>,
     @InjectModel('Character') private characterModel: Model<Character>,
+    @InjectModel('Status') private statusModel: Model<Status>,
   ) {}
 
   // ANCHOR Create Performance
@@ -123,6 +127,124 @@ export class PerformancesService {
       .sort({ 'interval.start': 1 });
 
     const res = await validateEpisodePerformances(performances);
+    return res;
+  }
+
+  // ANCHOR Find All Performances by Episode
+  async findAllByEpisode(
+    page: number | string,
+    episodeId: string,
+    characterId?: string,
+    currentStatus?: string,
+  ): Promise<ResponseEntity> {
+    page = page ? (typeof page === 'string' ? parseInt(page) : page) : 1;
+    page = page < 1 ? 1 : page;
+
+    const limit = 5;
+    const skip = (page - 1) * limit;
+
+    const aggregationPipeline: any[] = [];
+
+    // Match stage to filter by episodeId and characterId
+    aggregationPipeline.push({
+      $match: {
+        episode: new mongoose.Types.ObjectId(episodeId),
+        ...(characterId && {
+          character: new mongoose.Types.ObjectId(characterId),
+        }),
+      },
+    });
+
+    // Lookup stage to populate 'character'
+    aggregationPipeline.push({
+      $lookup: {
+        from: 'characters',
+        localField: 'character',
+        foreignField: '_id',
+        as: 'character',
+      },
+    });
+
+    // Unwind 'character' array created by $lookup
+    aggregationPipeline.push({
+      $unwind: '$character',
+    });
+
+    // Lookup stage to populate 'character.currentStatus'
+    if (currentStatus) {
+      const status = await this.statusModel.findOne({ name: currentStatus });
+
+      if (!status) {
+        throw new NotFoundException(
+          `The status ${currentStatus} does not exist`,
+        );
+      }
+
+      aggregationPipeline.push({
+        $lookup: {
+          from: 'status',
+          localField: 'character.currentStatus',
+          foreignField: '_id',
+          as: 'character.currentStatus',
+        },
+      });
+
+      // Unwind 'character.currentStatus' array created by $lookup
+      aggregationPipeline.push({
+        $unwind: '$character.currentStatus',
+      });
+
+      // Match stage to filter by currentStatus
+      aggregationPipeline.push({
+        $match: {
+          'character.currentStatus.name': currentStatus,
+        },
+      });
+    }
+
+    const totalCount = await this.performanceModel
+      .aggregate([
+        ...aggregationPipeline,
+        {
+          $count: 'count',
+        },
+      ])
+      .exec();
+
+    // Skip and Limit stages for pagination
+    aggregationPipeline.push({
+      $skip: skip,
+    });
+    aggregationPipeline.push({
+      $limit: limit,
+    });
+
+    // Execute the aggregation
+    const results = await this.performanceModel.aggregate(aggregationPipeline);
+
+    if (results.length === 0) {
+      throw new NotFoundException(`No results found`);
+    }
+
+    const count = totalCount.length > 0 ? totalCount[0].count : 0;
+    const totalPages = Math.ceil(count / limit);
+
+    const res: ResponseEntity = {
+      info: {
+        count,
+        pages: totalPages,
+        next:
+          page < totalPages
+            ? `${process.env.API_URL}/performances?page=${page + 1}`
+            : null,
+        prev:
+          page > 1
+            ? `${process.env.API_URL}/performances?page=${page - 1}`
+            : null,
+      },
+      results,
+    };
+
     return res;
   }
 }

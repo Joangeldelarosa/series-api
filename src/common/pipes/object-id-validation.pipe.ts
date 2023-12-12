@@ -9,7 +9,7 @@ import { Types } from 'mongoose';
 @Injectable()
 export class ObjectIdValidationPipe implements PipeTransform {
   transform(value: any, metadata: ArgumentMetadata): any {
-    if (metadata.type !== 'param') {
+    if (metadata.type !== 'param' || !value) {
       return value;
     }
 

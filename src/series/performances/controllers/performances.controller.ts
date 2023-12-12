@@ -11,6 +11,7 @@ import {
   Get,
   UseGuards,
   UseInterceptors,
+  Query,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { PerformancesService } from '../services/performances.service';
@@ -24,10 +25,12 @@ import {
   ApiBody,
   ApiOperation,
   ApiBearerAuth,
+  ApiQuery,
 } from '@nestjs/swagger';
 import { ObjectIdValidationPipe } from 'src/common/pipes/object-id-validation.pipe';
 import { PerformanceValidationInterceptor } from 'src/common/interceptors/performance-validation.interceptor';
 import { ResponseEntity } from 'src/common/entities/response.entity';
+import { StatusValidatePipe } from 'src/common/pipes/status-validate.pipe';
 
 @ApiTags('Performances')
 @Controller('performances')
@@ -156,5 +159,45 @@ export class PerformancesController {
       characterId,
       episodeId,
     );
+  }
+
+  // ANCHOR Find All by Episode
+  @Get(':episodeId')
+  @ApiOperation({
+    summary: 'Find all performances by episode',
+    description:
+      'Find all performances by episode with pagination and optional filters.',
+  })
+  @ApiParam({ name: 'episodeId', description: 'Episode ID' })
+  @ApiQuery({ name: 'page', description: 'Page number', required: false })
+  @ApiQuery({
+    name: 'characterId',
+    description: 'Character ID',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'currentStatus',
+    description: 'Character current state',
+    required: false,
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Find all performances by episode',
+  })
+  @UsePipes(ObjectIdValidationPipe, ValidationPipe, StatusValidatePipe)
+  async findAllByEpisode(
+    @Param('episodeId') episodeId: string,
+    @Query('page') page?: number | string,
+    @Query('characterId') characterId?: string,
+    @Query('currentStatus') currentStatus?: string,
+  ): Promise<ResponseEntity> {
+    const performances = await this.performancesService.findAllByEpisode(
+      page,
+      episodeId,
+      characterId,
+      currentStatus,
+    );
+
+    return performances;
   }
 }
